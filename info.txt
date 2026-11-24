@@ -1,0 +1,12 @@
+Prepare ofer for client request:
+
+- each employer will cary one unique RFID card
+- instaling RFID in / out sistem for monitoring in and outs of employers
+- installing RFID antennas in different parts of the production zone
+- build an app that"
+
+1. contain database of employers for name, personal data, default position
+2. monitor the in out hours
+3. monitor the position of each employer  real time
+4. reports based on hours and positions
+5. sends notifications if  the parameters for each employer is outlined

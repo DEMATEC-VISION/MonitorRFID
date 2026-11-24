@@ -1,0 +1,866 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dematec Vision — Emiroglio RFID Workforce &amp; Zone Monitoring</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="app-shell">
+    <!-- ==================== SIDEBAR ==================== -->
+    <aside class="sidebar">
+      <div class="brand-block">
+        <div class="brand-mark" aria-hidden="true">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M2 12a10 10 0 0 1 18-6" />
+            <path d="M5 12a7 7 0 0 1 12-4.2" />
+            <path d="M8.5 12a3.5 3.5 0 0 1 6-2" />
+            <circle cx="12" cy="12" r="1.5" fill="currentColor" />
+            <path d="M12 13.5V21" />
+          </svg>
+        </div>
+        <div class="brand-text">
+          <div class="brand-title">Dematec Vision</div>
+          <div class="brand-sub">RFID Monitoring Suite</div>
+        </div>
+      </div>
+
+      <div class="client-pill">
+        <div>
+          <div class="label">Client Facility</div>
+          <div class="value">Emiroglio Plant 01</div>
+        </div>
+        <span id="liveDot" class="live-dot" title="Live RFID Telemetry Active"></span>
+      </div>
+
+      <div class="nav-section-label">Operations</div>
+      <ul class="nav-list">
+        <li>
+          <button class="nav-btn active" data-view="map">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/><line x1="8" y1="2" x2="8" y2="18"/><line x1="16" y1="6" x2="16" y2="22"/></svg>
+            <span class="nav-label">Live Floor Map</span>
+            <span id="navOnSiteCount" class="nav-badge subtle">14</span>
+          </button>
+        </li>
+        <li>
+          <button class="nav-btn" data-view="attendance">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+            <span class="nav-label">IN / OUT Hours</span>
+          </button>
+        </li>
+        <li>
+          <button class="nav-btn" data-view="employees">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+            <span class="nav-label">Employee Database</span>
+            <span id="navTotalEmp" class="nav-badge subtle">16</span>
+          </button>
+        </li>
+        <li>
+          <button class="nav-btn" data-view="reports">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+            <span class="nav-label">Reports &amp; Analytics</span>
+          </button>
+        </li>
+        <li>
+          <button class="nav-btn" data-view="alerts">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+            <span class="nav-label">Alerts &amp; Rules</span>
+            <span id="navAlertBadge" class="nav-badge">3</span>
+          </button>
+        </li>
+      </ul>
+
+      <div class="nav-section-label">Proposal</div>
+      <ul class="nav-list">
+        <li>
+          <button class="nav-btn" data-view="offer">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+            <span class="nav-label">Client Offer &amp; BOM</span>
+          </button>
+        </li>
+      </ul>
+
+      <div class="sidebar-footer">
+        <div class="rfid-health-row">
+          <span>RFID Readers Online</span>
+          <strong>7 / 7</strong>
+        </div>
+        <div class="rfid-health-row">
+          <span>Active Antennas</span>
+          <strong>15 UHF</strong>
+        </div>
+        <button id="btnResetDemo" class="sidebar-reset-btn" title="Restore initial demo dataset">Reset Demo Data</button>
+      </div>
+    </aside>
+
+    <!-- ==================== MAIN AREA ==================== -->
+    <div class="main-area">
+      <!-- Topbar -->
+      <header class="topbar">
+        <div class="topbar-left">
+          <div>
+            <div id="topbarTitle" class="page-title">Live Production Floor &amp; Real-Time RFID Positioning</div>
+            <div id="topbarSubtitle" class="page-subtitle">UHF RFID Zone Telemetry • Shift I (07:00 – 15:30) • Auto-refresh enabled</div>
+          </div>
+        </div>
+        <div class="topbar-controls">
+          <div id="liveClock" class="clock-chip">14:22:08</div>
+          <button id="btnToggleSim" class="btn btn-outline btn-sm">
+            <span id="simIcon">⏸</span> <span id="simLabel">Pause Live Sim</span>
+          </button>
+          <button id="btnDemoAlert" class="btn btn-danger-soft btn-sm" title="Simulate a parameter violation right now">
+            ⚡ Trigger Alert Demo
+          </button>
+          <button id="btnQuickAddEmp" class="btn btn-amber btn-sm">
+            + Register RFID Card
+          </button>
+        </div>
+      </header>
+
+      <!-- Main Views Container -->
+      <main class="content-body">
+
+        <!-- ============================================================
+             VIEW 1: LIVE ISOMETRIC FLOOR MAP (Real-Time Positioning)
+             ============================================================ -->
+        <section id="view-map" class="view-panel active">
+          <!-- KPI Summary Strip -->
+          <div class="kpi-grid">
+            <div class="kpi-card">
+              <div class="kpi-top"><span>On-Site Personnel</span><span class="dot dot-ok"></span></div>
+              <div id="kpiOnSite" class="kpi-val">14</div>
+              <div id="kpiOnSiteMeta" class="kpi-meta">of 16 registered RFID cards</div>
+            </div>
+            <div class="kpi-card">
+              <div class="kpi-top"><span>On Default Position</span><span class="dot dot-info"></span></div>
+              <div id="kpiOnStation" class="kpi-val">11</div>
+              <div id="kpiOnStationMeta" class="kpi-meta">79% station compliance</div>
+            </div>
+            <div class="kpi-card">
+              <div class="kpi-top"><span>Out of Default Zone</span><span class="dot dot-warn"></span></div>
+              <div id="kpiOutOfZone" class="kpi-val">3</div>
+              <div class="kpi-meta">Tracked across 7 RFID zones</div>
+            </div>
+            <div class="kpi-card alert-accent">
+              <div class="kpi-top"><span>Active Parameter Alerts</span><span class="dot dot-danger"></span></div>
+              <div id="kpiActiveAlerts" class="kpi-val" style="color:var(--danger)">3</div>
+              <div class="kpi-meta">Click Alerts tab to resolve</div>
+            </div>
+            <div class="kpi-card">
+              <div class="kpi-top"><span>Avg Shift Hours Today</span><span>⏱</span></div>
+              <div id="kpiAvgHours" class="kpi-val">7.4h</div>
+              <div class="kpi-meta">IN/OUT Gate Portal verified</div>
+            </div>
+          </div>
+
+          <div class="map-workspace">
+            <!-- Isometric Interactive Stage -->
+            <div class="iso-stage-card">
+              <div class="iso-toolbar">
+                <div class="legend-row">
+                  <span class="legend-item"><span class="dot dot-ok"></span> On Default Station</span>
+                  <span class="legend-item"><span class="dot dot-warn"></span> Out of Default Zone</span>
+                  <span class="legend-item"><span class="dot dot-danger"></span> Restricted / Violation</span>
+                  <span class="legend-item"><span class="dot dot-info"></span> RFID Antenna Coverage</span>
+                </div>
+                <div class="input-group">
+                  <button id="btnClearZoneFilter" class="btn btn-outline btn-sm" style="display:none;">Show All Zones</button>
+                  <select id="mapStatusFilter" class="select" style="padding:5px 10px; font-size:12px;">
+                    <option value="all">All On-Site Staff</option>
+                    <option value="ok">On Default Position</option>
+                    <option value="alert">Alerts / Out of Position</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="iso-svg-wrap">
+                <svg id="isometricMapSvg" class="iso-svg" viewBox="0 0 1200 680" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Emiroglio Production Facility Real-Time RFID Isometric Floor Map">
+                  <defs>
+                    <!-- Soft architectural gradients -->
+                    <linearGradient id="groundGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                      <stop offset="0%" stop-color="#f8fafc" />
+                      <stop offset="100%" stop-color="#e2e8f0" />
+                    </linearGradient>
+                    <linearGradient id="roofLight" x1="0%" y1="0%" x2="100%" y2="100%">
+                      <stop offset="0%" stop-color="#ffffff" />
+                      <stop offset="100%" stop-color="#e2e8f0" />
+                    </linearGradient>
+                    <linearGradient id="wallLeft" x1="0%" y1="0%" x2="0%" y2="100%">
+                      <stop offset="0%" stop-color="#cbd5e1" />
+                      <stop offset="100%" stop-color="#94a3b8" />
+                    </linearGradient>
+                    <linearGradient id="wallRight" x1="0%" y1="0%" x2="0%" y2="100%">
+                      <stop offset="0%" stop-color="#e2e8f0" />
+                      <stop offset="100%" stop-color="#cbd5e1" />
+                    </linearGradient>
+                    <linearGradient id="amberGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                      <stop offset="0%" stop-color="#fbbf24" />
+                      <stop offset="100%" stop-color="#d97706" />
+                    </linearGradient>
+                    <linearGradient id="siloGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                      <stop offset="0%" stop-color="#94a3b8" />
+                      <stop offset="45%" stop-color="#f1f5f9" />
+                      <stop offset="100%" stop-color="#64748b" />
+                    </linearGradient>
+                    <filter id="softShadow" x="-15%" y="-15%" width="130%" height="130%">
+                      <feDropShadow dx="0" dy="8" stdDeviation="8" flood-color="#0f172a" flood-opacity="0.10" />
+                    </filter>
+                    <filter id="pinShadow" x="-40%" y="-40%" width="180%" height="180%">
+                      <feDropShadow dx="0" dy="3" stdDeviation="2.5" flood-color="#0f172a" flood-opacity="0.28" />
+                    </filter>
+                  </defs>
+
+                  <!-- Pure white canvas background -->
+                  <rect width="1200" height="680" fill="#ffffff" />
+
+                  <!-- ===== ISOMETRIC CAMPUS BASE PLATFORM ===== -->
+                  <g filter="url(#softShadow)">
+                    <!-- Main isometric concrete slab -->
+                    <polygon points="600,72 955,278 600,618 245,412" fill="url(#groundGrad)" stroke="#cbd5e1" stroke-width="1.5" />
+                    <!-- Slab left thickness -->
+                    <polygon points="245,412 600,618 600,632 245,426" fill="#cbd5e1" />
+                    <!-- Slab right thickness -->
+                    <polygon points="600,618 955,278 955,292 600,632" fill="#94a3b8" />
+                  </g>
+
+                  <!-- Subtle Isometric Grid Lines & Corridors -->
+                  <g stroke="#cbd5e1" stroke-width="1" opacity="0.65">
+                    <line x1="335" y1="360" x2="690" y2="155" />
+                    <line x1="425" y1="415" x2="780" y2="210" />
+                    <line x1="515" y1="470" x2="870" y2="265" />
+                    <line x1="425" y1="175" x2="780" y2="380" />
+                    <line x1="335" y1="265" x2="690" y2="470" />
+                  </g>
+
+                  <!-- Golden-Amber Overhead Industrial Pipes & Conveyor Walkways (matching reference style) -->
+                  <g fill="none" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="435,475 535,418 615,370 725,305" stroke="#94a3b8" stroke-width="8" opacity="0.45" />
+                    <polyline points="435,475 535,418 615,370 725,305" stroke="#f59e0b" stroke-width="3" />
+                    <polyline points="495,255 605,318 755,232" stroke="#f59e0b" stroke-width="2.5" opacity="0.9" />
+                    <polyline points="620,390 735,455 635,515" stroke="#f59e0b" stroke-width="2.5" opacity="0.85" />
+                  </g>
+
+                  <!-- ===== BUILDING 1: ZONE B — DYEING & FINISHING TOWERS (Top-Right: 735,195) ===== -->
+                  <g class="zone-group" data-zone="ZONE_B">
+                    <!-- Main process block -->
+                    <polygon class="zone-outline" points="735,130 855,198 760,255 640,187" fill="url(#roofLight)" stroke="#94a3b8" stroke-width="1.2" />
+                    <polygon points="640,187 760,255 760,300 640,232" fill="url(#wallLeft)" />
+                    <polygon points="760,255 855,198 855,243 760,300" fill="url(#wallRight)" />
+                    <!-- Twin Tall Dyeing Towers (distinct silhouette from reference) -->
+                    <polygon points="730,86 780,115 745,135 695,106" fill="#ffffff" stroke="#94a3b8" stroke-width="1" />
+                    <polygon points="695,106 745,135 745,212 695,183" fill="#cbd5e1" />
+                    <polygon points="745,135 780,115 780,192 745,212" fill="#e2e8f0" />
+                    <!-- Amber industrial stripe on tower -->
+                    <polygon points="695,136 745,165 745,176 695,147" fill="url(#amberGrad)" />
+                    <polygon points="745,165 780,145 780,156 745,176" fill="#f59e0b" />
+                    <!-- Second tower -->
+                    <polygon points="790,104 832,128 802,146 760,122" fill="#ffffff" stroke="#94a3b8" stroke-width="1" />
+                    <polygon points="760,122 802,146 802,216 760,192" fill="#94a3b8" />
+                    <polygon points="802,146 832,128 832,198 802,216" fill="#cbd5e1" />
+                    <polygon points="802,162 832,144 832,155 802,173" fill="#f59e0b" />
+                  </g>
+
+                  <!-- ===== BUILDING 2: ZONE C — QUALITY CONTROL & LAB (Upper-Left: 465,225) ===== -->
+                  <g class="zone-group" data-zone="ZONE_C">
+                    <polygon class="zone-outline" points="480,168 568,218 452,285 364,235" fill="url(#roofLight)" stroke="#94a3b8" stroke-width="1.2" />
+                    <polygon points="364,235 452,285 452,324 364,274" fill="url(#wallLeft)" />
+                    <polygon points="452,285 568,218 568,257 452,324" fill="url(#wallRight)" />
+                    <!-- Roof HVAC / Skylight modules -->
+                    <polygon points="478,186 502,200 486,209 462,195" fill="url(#amberGrad)" />
+                    <polygon points="440,210 470,227 450,239 420,222" fill="#e2e8f0" stroke="#94a3b8" stroke-width="0.8" />
+                    <!-- Clean Lab Windows -->
+                    <g fill="#0ea5e9" opacity="0.55">
+                      <polygon points="376,252 394,262 394,272 376,262" />
+                      <polygon points="402,267 420,277 420,287 402,277" />
+                      <polygon points="428,282 444,291 444,301 428,292" />
+                    </g>
+                  </g>
+
+                  <!-- ===== BUILDING 3: ZONE D — RAW MATERIAL WAREHOUSE (Left: 372,365) ===== -->
+                  <g class="zone-group" data-zone="ZONE_D">
+                    <polygon class="zone-outline" points="382,305 462,351 362,410 282,364" fill="url(#roofLight)" stroke="#94a3b8" stroke-width="1.2" />
+                    <polygon points="282,364 362,410 362,452 282,406" fill="url(#wallLeft)" />
+                    <polygon points="362,410 462,351 462,393 362,452" fill="url(#wallRight)" />
+                    <!-- Amber Warehouse Loading Bays -->
+                    <polygon points="298,386 320,399 320,425 298,412" fill="#475569" />
+                    <polygon points="328,403 350,416 350,442 328,429" fill="#475569" />
+                    <polygon points="378,322 414,343 394,355 358,334" fill="url(#amberGrad)" />
+                  </g>
+
+                  <!-- ===== BUILDING 4: ZONE A — SPINNING & WEAVING HALL (Center: 605,335) ===== -->
+                  <g class="zone-group" data-zone="ZONE_A">
+                    <!-- Main central textile hall -->
+                    <polygon class="zone-outline" points="605,256 718,322 605,388 492,322" fill="url(#roofLight)" stroke="#94a3b8" stroke-width="1.4" />
+                    <polygon points="492,322 605,388 605,432 492,366" fill="url(#wallLeft)" />
+                    <polygon points="605,388 718,322 718,366 605,432" fill="url(#wallRight)" />
+                    <!-- Saw-tooth industrial skylights -->
+                    <polygon points="565,296 618,326 602,336 549,306" fill="#e2e8f0" stroke="#94a3b8" stroke-width="0.9" />
+                    <polygon points="598,278 651,308 635,318 582,288" fill="#e2e8f0" stroke="#94a3b8" stroke-width="0.9" />
+                    <!-- Amber safety trim -->
+                    <polygon points="492,356 605,422 605,430 492,364" fill="url(#amberGrad)" />
+                    <polygon points="605,422 718,356 718,364 605,430" fill="#f59e0b" />
+                  </g>
+
+                  <!-- ===== BUILDING 5: ZONE E — MAINTENANCE & UTILITIES (Mid-Right: 775,365) ===== -->
+                  <g class="zone-group" data-zone="ZONE_E">
+                    <polygon class="zone-outline" points="782,306 878,362 778,420 682,364" fill="url(#roofLight)" stroke="#94a3b8" stroke-width="1.2" />
+                    <polygon points="682,364 778,420 778,458 682,402" fill="url(#wallLeft)" />
+                    <polygon points="778,420 878,362 878,400 778,458" fill="url(#wallRight)" />
+                    <!-- Amber generator/compressor units on roof -->
+                    <polygon points="785,326 822,348 800,361 763,339" fill="url(#amberGrad)" />
+                    <polygon points="738,354 764,369 748,378 722,363" fill="#475569" />
+                  </g>
+
+                  <!-- ===== BUILDING 6: GATE — MAIN GATE IN/OUT RFID PORTAL (Bottom-Left: 435,485) ===== -->
+                  <g class="zone-group" data-zone="GATE">
+                    <!-- Gatehouse booth -->
+                    <polygon class="zone-outline" points="440,432 518,478 440,524 362,478" fill="#ffffff" stroke="#10b981" stroke-width="1.8" />
+                    <polygon points="362,478 440,524 440,554 362,508" fill="#cbd5e1" />
+                    <polygon points="440,524 518,478 518,508 440,554" fill="#e2e8f0" />
+                    <!-- RFID Portal Archway -->
+                    <polygon points="418,468 456,490 456,498 418,476" fill="#10b981" />
+                    <rect x="430" y="458" width="16" height="6" rx="2" fill="#0f172a" />
+                  </g>
+
+                  <!-- ===== BUILDING 7: ZONE F — CHEMICAL & SILO VAULT (Restricted, Bottom: 615,535) ===== -->
+                  <g class="zone-group" data-zone="ZONE_F">
+                    <!-- Restricted red perimeter pad -->
+                    <polygon class="zone-outline" points="615,472 708,526 615,580 522,526" fill="#fef2f2" stroke="#ef4444" stroke-width="2" stroke-dasharray="6,4" />
+                    <!-- Twin Industrial Chemical Tanks / Silos (echoing reference bottom silos) -->
+                    <g>
+                      <!-- Silo 1 -->
+                      <ellipse cx="592" cy="534" rx="24" ry="13" fill="#64748b" opacity="0.3" />
+                      <rect x="570" y="486" width="44" height="44" fill="url(#siloGrad)" stroke="#64748b" stroke-width="0.8" />
+                      <ellipse cx="592" cy="530" rx="22" ry="11" fill="url(#siloGrad)" stroke="#64748b" stroke-width="0.8" />
+                      <ellipse cx="592" cy="486" rx="22" ry="11" fill="#f8fafc" stroke="#94a3b8" stroke-width="1" />
+                      <ellipse cx="592" cy="486" rx="14" ry="7" fill="none" stroke="#ef4444" stroke-width="1.5" />
+                      <!-- Silo 2 -->
+                      <ellipse cx="642" cy="516" rx="24" ry="13" fill="#64748b" opacity="0.3" />
+                      <rect x="620" y="468" width="44" height="44" fill="url(#siloGrad)" stroke="#64748b" stroke-width="0.8" />
+                      <ellipse cx="642" cy="512" rx="22" ry="11" fill="url(#siloGrad)" stroke="#64748b" stroke-width="0.8" />
+                      <ellipse cx="642" cy="468" rx="22" ry="11" fill="#f8fafc" stroke="#94a3b8" stroke-width="1" />
+                      <ellipse cx="642" cy="468" rx="14" ry="7" fill="none" stroke="#f59e0b" stroke-width="1.5" />
+                    </g>
+                  </g>
+
+                  <!-- ===== DYNAMIC LAYERS POPULATED BY JS ===== -->
+                  <g id="svgAntennaLayer"></g>
+                  <g id="svgCalloutsLayer"></g>
+                  <g id="svgEmployeePinsLayer"></g>
+                </svg>
+              </div>
+            </div>
+
+            <!-- Right Telemetry Side Panel -->
+            <div class="side-panel-stack">
+              <div class="card">
+                <div class="card-header">
+                  <div class="card-title" id="sideZoneTitle">All Production Zones</div>
+                  <span id="sideZoneBadge" class="badge badge-info">14 Active</span>
+                </div>
+                <div class="card-body">
+                  <div id="zoneDetailBox" class="zone-detail-banner">
+                    <div style="font-size:12.5px; color:var(--text-secondary);">
+                      Click any <strong>3D zone building</strong>, <strong>callout</strong>, or <strong>employee pin</strong> on the floor map to inspect live RFID antenna signal &amp; worker telemetry.
+                    </div>
+                  </div>
+                  <div id="liveRosterList" class="live-roster-list"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ============================================================
+             VIEW 2: IN / OUT HOURS ATTENDANCE MONITOR
+             ============================================================ -->
+        <section id="view-attendance" class="view-panel">
+          <!-- Interactive Hardware Gate Scan Simulator -->
+          <div class="sim-gate-card">
+            <div>
+              <h3>📡 Live RFID Gate Portal Simulator <span class="badge badge-ok" style="margin-left:6px;">RDR-GATE-01 Ready</span></h3>
+              <p>Test how the directional IN/OUT RFID gate logs employee arrivals, departures, late-arrival alerts, and updates the floor map in real time.</p>
+            </div>
+            <div class="sim-gate-controls">
+              <select id="simEmpSelect" class="select"></select>
+              <select id="simDirectionSelect" class="select">
+                <option value="IN">Direction: IN (Enter Plant)</option>
+                <option value="OUT">Direction: OUT (Exit Plant)</option>
+              </select>
+              <input id="simTimeInput" type="time" class="input" />
+              <button id="btnSimulateScan" class="btn btn-amber">Simulate RFID Scan</button>
+            </div>
+          </div>
+
+          <div class="kpi-grid cols-4">
+            <div class="kpi-card">
+              <div class="kpi-top"><span>Clocked IN Today</span><span class="dot dot-ok"></span></div>
+              <div id="attClockedIn" class="kpi-val">14</div>
+              <div class="kpi-meta">Directional Portal Verified</div>
+            </div>
+            <div class="kpi-card">
+              <div class="kpi-top"><span>Clocked OUT</span><span>🚪</span></div>
+              <div id="attClockedOut" class="kpi-val">2</div>
+              <div class="kpi-meta">Shift II / Completed Shifts</div>
+            </div>
+            <div class="kpi-card">
+              <div class="kpi-top"><span>Late Arrivals</span><span class="dot dot-warn"></span></div>
+              <div id="attLateCount" class="kpi-val">1</div>
+              <div class="kpi-meta">&gt; 10 min past shift start</div>
+            </div>
+            <div class="kpi-card">
+              <div class="kpi-top"><span>Overtime Active</span><span class="dot dot-danger"></span></div>
+              <div id="attOvertimeCount" class="kpi-val">1</div>
+              <div class="kpi-meta">&gt; 8.5 hrs daily limit</div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title">RFID Gate Portal Event Log (IN / OUT)</div>
+              <div class="input-group">
+                <input id="attSearch" class="input" type="text" placeholder="Search employee or RFID UID..." />
+                <select id="attDirFilter" class="select">
+                  <option value="all">All Directions</option>
+                  <option value="IN">IN Only</option>
+                  <option value="OUT">OUT Only</option>
+                </select>
+                <button id="btnExportAttendanceCsv" class="btn btn-outline btn-sm">⬇ Export CSV</button>
+              </div>
+            </div>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Timestamp</th>
+                    <th>Direction</th>
+                    <th>Employee</th>
+                    <th>Department</th>
+                    <th>RFID Card UID</th>
+                    <th>Portal Reader</th>
+                    <th>Shift Status</th>
+                  </tr>
+                </thead>
+                <tbody id="attendanceTableBody"></tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- ============================================================
+             VIEW 3: EMPLOYEE DATABASE & RFID CARDS
+             ============================================================ -->
+        <section id="view-employees" class="view-panel">
+          <div class="toolbar-row">
+            <div class="input-group">
+              <input id="empSearch" class="input" type="text" placeholder="Search name, ID, RFID UID, phone..." style="min-width:260px;" />
+              <select id="empDeptFilter" class="select">
+                <option value="all">All Departments</option>
+                <option value="Spinning & Weaving">Spinning &amp; Weaving</option>
+                <option value="Dyeing & Finishing">Dyeing &amp; Finishing</option>
+                <option value="Quality Control">Quality Control</option>
+                <option value="Logistics & Warehouse">Logistics &amp; Warehouse</option>
+                <option value="Maintenance & Utilities">Maintenance &amp; Utilities</option>
+              </select>
+              <select id="empZoneFilter" class="select">
+                <option value="all">All Default Positions</option>
+              </select>
+            </div>
+            <div class="input-group">
+              <button id="btnExportEmployeesCsv" class="btn btn-outline">⬇ Export Roster CSV</button>
+              <button id="btnAddEmployee" class="btn btn-primary">+ Add Employee &amp; Assign RFID</button>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Employee</th>
+                    <th>Personal Contact</th>
+                    <th>Unique RFID Card UID</th>
+                    <th>Default Position</th>
+                    <th>Shift &amp; Limits</th>
+                    <th>Live Status</th>
+                    <th style="text-align:right;">Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="employeesTableBody"></tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- ============================================================
+             VIEW 4: REPORTS & ANALYTICS (Hours & Positions)
+             ============================================================ -->
+        <section id="view-reports" class="view-panel">
+          <div class="toolbar-row no-print">
+            <div class="input-group">
+              <select id="reportRange" class="select">
+                <option value="today">Period: Today (Live Shift)</option>
+                <option value="week">Period: Current Week (5 Days)</option>
+                <option value="month">Period: Current Month (Projected)</option>
+              </select>
+              <select id="reportDeptFilter" class="select">
+                <option value="all">All Departments</option>
+                <option value="Spinning & Weaving">Spinning &amp; Weaving</option>
+                <option value="Dyeing & Finishing">Dyeing &amp; Finishing</option>
+                <option value="Quality Control">Quality Control</option>
+                <option value="Logistics & Warehouse">Logistics &amp; Warehouse</option>
+                <option value="Maintenance & Utilities">Maintenance &amp; Utilities</option>
+              </select>
+            </div>
+            <div class="input-group">
+              <button id="btnExportReportCsv" class="btn btn-outline">⬇ Download CSV Report</button>
+              <button onclick="window.print()" class="btn btn-primary">🖨 Print / Save PDF</button>
+            </div>
+          </div>
+
+          <div class="charts-grid">
+            <div class="card">
+              <div class="card-header">
+                <div class="card-title">Hours Worked by Employee (vs. Target)</div>
+                <span class="badge badge-neutral">RFID Gate Verified</span>
+              </div>
+              <div class="card-body chart-box" id="chartHoursBars"></div>
+            </div>
+
+            <div class="card">
+              <div class="card-header">
+                <div class="card-title">Default Position Compliance by Zone</div>
+                <span class="badge badge-ok">Zone Antenna Telemetry</span>
+              </div>
+              <div class="card-body chart-box" id="chartZoneCompliance"></div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title">Detailed Hours &amp; Production Zone Compliance Report</div>
+              <span id="reportRowCount" class="badge badge-info">16 Employees</span>
+            </div>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Employee</th>
+                    <th>Department</th>
+                    <th>RFID Card UID</th>
+                    <th>Default Zone</th>
+                    <th>Worked Hours</th>
+                    <th>Overtime</th>
+                    <th>In Default Zone %</th>
+                    <th>Parameter Status</th>
+                  </tr>
+                </thead>
+                <tbody id="reportsTableBody"></tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- ============================================================
+             VIEW 5: ALERTS & PARAMETER NOTIFICATION ENGINE
+             ============================================================ -->
+        <section id="view-alerts" class="view-panel">
+          <div class="alerts-layout">
+            <!-- Left: Live Alert Feed -->
+            <div class="card">
+              <div class="card-header">
+                <div class="card-title">Parameter Violations &amp; Real-Time Alerts</div>
+                <div class="input-group">
+                  <select id="alertFilterStatus" class="select" style="padding:5px 10px; font-size:12px;">
+                    <option value="all">All Statuses</option>
+                    <option value="active">Active Only</option>
+                    <option value="acknowledged">Acknowledged</option>
+                    <option value="resolved">Resolved</option>
+                  </select>
+                  <button id="btnResolveAll" class="btn btn-outline btn-sm">Resolve All</button>
+                </div>
+              </div>
+              <div class="card-body" id="alertsFeedContainer"></div>
+            </div>
+
+            <!-- Right: Rules Engine & Dispatch Log -->
+            <div class="side-panel-stack">
+              <div class="card">
+                <div class="card-header">
+                  <div class="card-title">⚙ Parameter Threshold Rules</div>
+                  <span class="badge badge-ok">Engine Active</span>
+                </div>
+                <div class="card-body">
+                  <div class="rule-row">
+                    <div class="rule-label">
+                      <strong>Max Time Outside Default Zone</strong>
+                      <span>Alert if away from assigned station exceeds limit</span>
+                    </div>
+                    <div style="display:flex;align-items:center;gap:6px;">
+                      <input id="ruleOutMinutes" type="number" min="1" max="120" class="input rule-input-sm" />
+                      <span style="font-size:12px;color:var(--text-muted)">min</span>
+                    </div>
+                  </div>
+                  <div class="rule-row">
+                    <div class="rule-label">
+                      <strong>Restricted Zone Entry</strong>
+                      <span>Immediate Critical alarm on unauthorized zone read</span>
+                    </div>
+                    <label class="toggle"><input id="ruleRestricted" type="checkbox" /><span class="toggle-slider"></span></label>
+                  </div>
+                  <div class="rule-row">
+                    <div class="rule-label">
+                      <strong>Late Shift Arrival Grace</strong>
+                      <span>Notify HR/Supervisor if IN scan exceeds grace period</span>
+                    </div>
+                    <div style="display:flex;align-items:center;gap:6px;">
+                      <input id="ruleLateGrace" type="number" min="0" max="60" class="input rule-input-sm" />
+                      <span style="font-size:12px;color:var(--text-muted)">min</span>
+                    </div>
+                  </div>
+                  <div class="rule-row">
+                    <div class="rule-label">
+                      <strong>Max Daily Shift Hours</strong>
+                      <span>Trigger overtime alert when active shift exceeds limit</span>
+                    </div>
+                    <div style="display:flex;align-items:center;gap:6px;">
+                      <input id="ruleMaxHours" type="number" step="0.5" min="4" max="16" class="input rule-input-sm" />
+                      <span style="font-size:12px;color:var(--text-muted)">hrs</span>
+                    </div>
+                  </div>
+                  <div class="rule-row">
+                    <div class="rule-label">
+                      <strong>Notification Channels</strong>
+                      <span>Automatic dispatch targets when rule triggers</span>
+                    </div>
+                    <div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end;">
+                      <label class="zone-check-pill"><input id="chDash" type="checkbox" /> Dashboard</label>
+                      <label class="zone-check-pill"><input id="chEmail" type="checkbox" /> Email</label>
+                      <label class="zone-check-pill"><input id="chSms" type="checkbox" /> SMS</label>
+                      <label class="zone-check-pill"><input id="chWebhook" type="checkbox" /> Webhook</label>
+                    </div>
+                  </div>
+                  <button id="btnSaveRules" class="btn btn-primary" style="width:100%;margin-top:12px;justify-content:center;">Save Parameter Rules</button>
+                </div>
+              </div>
+
+              <div class="card">
+                <div class="card-header">
+                  <div class="card-title">📤 Outbound Notification Log</div>
+                </div>
+                <div class="card-body" id="dispatchLogContainer" style="max-height:260px;overflow-y:auto;"></div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ============================================================
+             VIEW 6: CLIENT OFFER, ARCHITECTURE & INTERACTIVE BOM
+             ============================================================ -->
+        <section id="view-offer" class="view-panel">
+          <div class="offer-hero">
+            <div>
+              <span class="badge badge-warn" style="margin-bottom:8px;">TECHNICAL &amp; COMMERCIAL PROPOSAL</span>
+              <h2>RFID Personnel Attendance &amp; Real-Time Zone Monitoring System</h2>
+              <p>Turnkey passive UHF RFID hardware + Dematec Vision web monitoring platform engineered specifically for Emiroglio's production facility: unique employee badges, directional IN/OUT gate portals, zone-level real-time positioning, automated reporting, and parameter alerting.</p>
+            </div>
+            <div class="offer-meta-box">
+              <div><span>Client:</span><strong>Emiroglio</strong></div>
+              <div><span>Provider:</span><strong>Dematec Vision</strong></div>
+              <div><span>Ref No.:</span><strong>DV-RFID-EMIR-2026-01</strong></div>
+              <div><span>Timeline:</span><strong>6 Weeks Turnkey</strong></div>
+              <div style="margin-top:8px;">
+                <button onclick="window.print()" class="btn btn-amber btn-sm" style="width:100%;justify-content:center;">🖨 Print / Save Offer PDF</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="card" style="margin-bottom:18px;">
+            <div class="card-header">
+              <div class="card-title">System Architecture Overview</div>
+              <span class="badge badge-info">Passive UHF ISO 18000-6C (EPC Gen2)</span>
+            </div>
+            <div class="card-body">
+              <div class="arch-flow">
+                <div class="arch-step">
+                  <div class="arch-step-num">1</div>
+                  <strong>Unique RFID Badges</strong>
+                  <p style="font-size:12px;color:var(--text-secondary);margin-top:4px;">Zero-battery UHF PVC cards issued per employee with locked TID &amp; unique EPC mapped to personal profile &amp; default zone.</p>
+                </div>
+                <div class="arch-step">
+                  <div class="arch-step-num">2</div>
+                  <strong>IN/OUT Gate Portals</strong>
+                  <p style="font-size:12px;color:var(--text-secondary);margin-top:4px;">Directional dual-antenna RFID gates + optical sensors automatically log shift entry &amp; exit hands-free.</p>
+                </div>
+                <div class="arch-step">
+                  <div class="arch-step-num">3</div>
+                  <strong>Zone RFID Antennas</strong>
+                  <p style="font-size:12px;color:var(--text-secondary);margin-top:4px;">IP65/IP67 PoE+ fixed readers &amp; circularly polarized panel antennas continuously detect worker positions across all halls.</p>
+                </div>
+                <div class="arch-step">
+                  <div class="arch-step-num">4</div>
+                  <strong>Monitoring &amp; Alerts App</strong>
+                  <p style="font-size:12px;color:var(--text-secondary);margin-top:4px;">Live isometric map, employee DB, attendance hours, compliance reports, and instant SMS/Email/Dashboard notifications.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Interactive Editable BOM Estimator -->
+          <div class="card" style="margin-bottom:18px;">
+            <div class="card-header">
+              <div class="card-title">Interactive Commercial Estimate / Bill of Materials (Editable)</div>
+              <span class="badge badge-neutral">Adjust Qty or Unit Price live during client meetings</span>
+            </div>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>#</th>
+                    <th>Category</th>
+                    <th>Scope / Equipment Description</th>
+                    <th style="text-align:right;">Qty</th>
+                    <th style="text-align:right;">Unit Price (EUR)</th>
+                    <th style="text-align:right;">Line Total (EUR)</th>
+                  </tr>
+                </thead>
+                <tbody id="bomTableBody"></tbody>
+                <tfoot>
+                  <tr style="background:var(--bg-subtle);font-weight:800;">
+                    <td colspan="5" style="text-align:right;font-size:14px;">Estimated Total Investment (Excl. VAT)</td>
+                    <td id="bomGrandTotal" class="mono" style="text-align:right;font-size:16px;color:var(--brand-navy);">€27,460.00</td>
+                  </tr>
+                </tfoot>
+              </table>
+            </div>
+          </div>
+
+          <div class="offer-grid-2">
+            <div class="card">
+              <div class="card-header"><div class="card-title">6-Week Implementation Roadmap</div></div>
+              <div class="card-body" style="font-size:13px;display:flex;flex-direction:column;gap:8px;">
+                <div><strong>Week 1:</strong> On-site RF Survey, metallic interference check &amp; floor plan digitization</div>
+                <div><strong>Week 2–3:</strong> Gate Portal &amp; Zone Antenna mounting, PoE+ switch cabling</div>
+                <div><strong>Week 4:</strong> Software installation, Employee DB import &amp; RFID card encoding</div>
+                <div><strong>Week 5:</strong> RSSI power calibration, anti-bounce tuning &amp; pilot validation</div>
+                <div><strong>Week 6:</strong> Production go-live, operator/HR training &amp; documentation handover</div>
+              </div>
+            </div>
+            <div class="card">
+              <div class="card-header"><div class="card-title">Key Technical &amp; Compliance Assurances</div></div>
+              <div class="card-body" style="font-size:13px;display:flex;flex-direction:column;gap:8px;">
+                <div>✅ <strong>Offline Buffering:</strong> Edge readers buffer scans if LAN drops — zero lost punches.</div>
+                <div>✅ <strong>Anti-Bounce Arbitration:</strong> RSSI hysteresis eliminates false zone hopping.</div>
+                <div>✅ <strong>GDPR &amp; Role Access:</strong> Role-based views (Admin, Supervisor, HR, Security).</div>
+                <div>✅ <strong>ERP / Payroll Ready:</strong> Automated CSV / REST API attendance exports.</div>
+                <div>✅ <strong>Scalable:</strong> Add new halls, antennas, or cards anytime without re-architecting.</div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+      </main>
+    </div>
+  </div>
+
+  <!-- ==================== EMPLOYEE ADD/EDIT MODAL ==================== -->
+  <div id="empModalBackdrop" class="modal-backdrop">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3 id="empModalTitle" style="font-size:16px;font-weight:700;">Register New Employee &amp; RFID Card</h3>
+        <button id="btnCloseEmpModal" class="btn btn-outline btn-sm">✕</button>
+      </div>
+      <form id="empForm">
+        <div class="modal-body">
+          <input type="hidden" id="formEmpOriginalId" />
+          <div class="form-grid">
+            <div class="form-field">
+              <label for="formEmpId">Employee ID *</label>
+              <input id="formEmpId" class="input mono" required placeholder="EMP-117" />
+            </div>
+            <div class="form-field">
+              <label for="formEmpName">Full Name *</label>
+              <input id="formEmpName" class="input" required placeholder="e.g. Luca Bianchi" />
+            </div>
+            <div class="form-field">
+              <label for="formEmpDept">Department *</label>
+              <select id="formEmpDept" class="select">
+                <option value="Spinning & Weaving">Spinning &amp; Weaving</option>
+                <option value="Dyeing & Finishing">Dyeing &amp; Finishing</option>
+                <option value="Quality Control">Quality Control</option>
+                <option value="Logistics & Warehouse">Logistics &amp; Warehouse</option>
+                <option value="Maintenance & Utilities">Maintenance &amp; Utilities</option>
+              </select>
+            </div>
+            <div class="form-field">
+              <label for="formEmpRole">Job Role *</label>
+              <input id="formEmpRole" class="input" required placeholder="e.g. Loom Technician" />
+            </div>
+            <div class="form-field">
+              <label for="formEmpPhone">Phone Number</label>
+              <input id="formEmpPhone" class="input" placeholder="+40 7xx xxx xxx" />
+            </div>
+            <div class="form-field">
+              <label for="formEmpEmail">Email Address</label>
+              <input id="formEmpEmail" class="input" type="email" placeholder="name@emiroglio.local" />
+            </div>
+            <div class="form-field full">
+              <label for="formEmpEmergency">Emergency Contact</label>
+              <input id="formEmpEmergency" class="input" placeholder="Contact Name (+phone)" />
+            </div>
+            <div class="form-field full">
+              <label for="formEmpRfid">Unique UHF RFID Card UID *</label>
+              <div style="display:flex;gap:8px;">
+                <input id="formEmpRfid" class="input mono" required style="flex:1;" placeholder="E280-1170-2000-0117" />
+                <button type="button" id="btnGenRfid" class="btn btn-outline btn-sm">Generate EPC</button>
+              </div>
+            </div>
+            <div class="form-field">
+              <label for="formEmpDefaultZone">Default Production Zone *</label>
+              <select id="formEmpDefaultZone" class="select"></select>
+            </div>
+            <div class="form-field">
+              <label for="formEmpMaxAway">Max Away-from-Station (min)</label>
+              <input id="formEmpMaxAway" class="input" type="number" min="1" max="120" value="15" />
+            </div>
+            <div class="form-field">
+              <label for="formEmpShiftStart">Shift Start</label>
+              <input id="formEmpShiftStart" class="input" type="time" value="07:00" />
+            </div>
+            <div class="form-field">
+              <label for="formEmpMaxHours">Max Daily Shift (hrs)</label>
+              <input id="formEmpMaxHours" class="input" type="number" step="0.5" min="4" max="16" value="8.5" />
+            </div>
+            <div class="form-field full">
+              <label>Authorized Zones (Entering unchecked zones triggers Critical Alert)</label>
+              <div id="formAllowedZones" class="zone-checkboxes"></div>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" id="btnCancelEmpModal" class="btn btn-outline">Cancel</button>
+          <button type="submit" class="btn btn-primary">Save Employee Profile</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ==================== EMPLOYEE TELEMETRY DRAWER ==================== -->
+  <div id="telemetryDrawerBackdrop" class="drawer-backdrop">
+    <div class="drawer-panel">
+      <div class="modal-header">
+        <h3 style="font-size:15px;font-weight:700;">Live Employee RFID Telemetry</h3>
+        <button id="btnCloseDrawer" class="btn btn-outline btn-sm">✕</button>
+      </div>
+      <div id="telemetryDrawerBody" class="modal-body"></div>
+    </div>
+  </div>
+
+  <!-- Toast Container -->
+  <div id="toastContainer" class="toast-container"></div>
+
+  <script src="data.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
